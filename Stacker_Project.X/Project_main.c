@@ -1,6 +1,10 @@
 /*
  * File:   Lab_4B.c
- * Author: matthew klein
+ * Author: matthew klein, Gilbert
+ * 
+ * 
+ * 
+ * 
  *
  * Created on April 10, 2026
  */
