@@ -1,0 +1,10 @@
+{
+    "mplab.clangd.compileCommandsDir": "${workspaceFolder}\\_build\\Stacker_Project\\default",
+    "mplab.clangd.path": "",
+    "memory-inspector.debugTypes": [
+        "arm-debugger",
+        "embedded-debug",
+        "gdb",
+        "mplab-core-da"
+    ]
+}
