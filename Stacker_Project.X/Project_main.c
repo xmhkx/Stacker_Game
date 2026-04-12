@@ -24,6 +24,8 @@
 
 #define SPBRG_VALUE 25   // 9600 baud at 4 MHz with BRGH = 1
 
+
+
 void UART_Init(void)
 {
     OSCCON = 0x6A;   // 4 MHz internal oscillator
@@ -35,8 +37,8 @@ void UART_Init(void)
     TRISCbits.TRISC4 = 1;   // RX input
     TRISCbits.TRISC5 = 0;   // TX output
 
-    APFCON0bits.RXDTSEL = 1;   // RX on RC4
-    APFCON0bits.TXCKSEL = 1;   // TX on RC5
+    APFCON0bits.RXDTSEL = 1;
+    APFCON0bits.TXCKSEL = 1;
 
     SPBRG = SPBRG_VALUE;
 
@@ -55,30 +57,66 @@ void UART_Write(char data)
     TXREG = data;
 }
 
+char UART_Data_Ready(void)
+{
+    return PIR1bits.RCIF;
+}
+
+char UART_Read(void)
+{
+    if (RCSTAbits.OERR) {
+        RCSTAbits.CREN = 0;
+        RCSTAbits.CREN = 1;
+    }
+
+    while (!PIR1bits.RCIF) {
+        ;
+    }
+
+    return RCREG;
+}
+
 void main(void)
 {
+    char receivedChar;
+
     UART_Init();
 
     TRISBbits.TRISB7 = 1;     // RB7 = input button
+    TRISCbits.TRISC6 = 0;   // Red LED output
+    LATCbits.LATC6 = 1;
     
 
     while (1)
     {
-        // button pressed (active low)
         if (PORTBbits.RB7 == 0)
         {
-            __delay_ms(20);   // debounce
+            __delay_ms(20);
 
             if (PORTBbits.RB7 == 0)
             {
-                UART_Write('A');   // send command to Arduino once
+                UART_Write('A');   // send to Arduino
+
+                receivedChar = UART_Read();   // wait for Arduino reply
+
+                // Example: do something with returned char
+                if (receivedChar == 'B')
+                {
+                    // put your PIC action here later
+                    // example: Reading the UART from arduino chip to PIC
+                    LATCbits.LATC6 = 0;   // turn on LED
+                    __delay_ms(100);
+                    LATCbits.LATC6 = 1;   // turn off LED
+
+                    
+                }
 
                 while (PORTBbits.RB7 == 0)
                 {
-                    ;   // wait until button released
+                    ;
                 }
 
-                __delay_ms(20);   // debounce release
+                __delay_ms(20);
             }
         }
     }
