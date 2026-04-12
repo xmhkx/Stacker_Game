@@ -59,9 +59,27 @@ void main(void)
 {
     UART_Init();
 
+    TRISBbits.TRISB7 = 1;     // RB7 = input button
+    
+
     while (1)
     {
-        UART_Write('A');
-        __delay_ms(500);
+        // button pressed (active low)
+        if (PORTBbits.RB7 == 0)
+        {
+            __delay_ms(20);   // debounce
+
+            if (PORTBbits.RB7 == 0)
+            {
+                UART_Write('A');   // send command to Arduino once
+
+                while (PORTBbits.RB7 == 0)
+                {
+                    ;   // wait until button released
+                }
+
+                __delay_ms(20);   // debounce release
+            }
+        }
     }
 }
